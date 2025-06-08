@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pacdora Quick Quote Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif; /* Ensure Montserrat is applied */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    /* Additional global styles can go here if absolutely necessary */
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^18.2.0/",
+    "react/": "https://esm.sh/react@^18.2.0/",
+    "react": "https://esm.sh/react@^18.2.0",
+    "@google/genai": "https://esm.sh/@google/genai@^0.12.0"
+  }
+}
+</script>
+<script>
+  // Make the Gemini API key available to the application via process.env
+  // This is a common approach for client-side apps without a build step for environment variables.
+  // WARNING: Exposing API keys on the client-side is a security risk for public applications.
+  // Consider a backend proxy for production or ensure the page is access-restricted.
+  window.process = {
+    env: {
+      API_KEY: "AIzaSyBYx8RIST_ENVxVZpseWGESqKlBXHDEmRk" // Your provided Google Gemini API Key
+    }
+  };
+</script>
+
+<!-- Pacdora SDK - Version 1.1.8 -->
+<!-- The following URL loads Pacdora SDK version 1.1.8 as per user request. -->
+<!-- Ensure this is the correct and latest desired version from Pacdora documentation. -->
+<script src="https://cdn.pacdora.com/Pacdora-v1.1.8.js"></script>
+
+<!-- Pacdora Initialization Script (from user prompt) -->
+<script>
+  document.addEventListener("DOMContentLoaded", async (event) => {
+    // Variable for Pacdora.createScene's templateId.
+    // Set this to a valid Pacdora template ID string if you want a scene to load automatically.
+    // e.g., var pacdoraTemplateIdForInitialLoad = "YOUR_DEFAULT_PACDORA_TEMPLATE_ID";
+    // If left as null or empty, Pacdora.createScene will not be called on page load.
+    var pacdoraTemplateIdForInitialLoad = null; 
+
+    // Check if Pacdora SDK loaded
+    if (typeof Pacdora === 'undefined' || typeof Pacdora.init !== 'function') {
+      console.error("Pacdora SDK (Pacdora object or Pacdora.init function) not found. Ensure the SDK script tag above is correct (especially the version number) and that the SDK loads successfully before this script runs.");
+      var rootElCheck = document.getElementById('root');
+      if (rootElCheck && rootElCheck.parentNode) {
+        var errorDivCheck = document.createElement('div');
+        errorDivCheck.textContent = 'Critical Error: Pacdora SDK failed to load. Please verify the SDK URL and version in index.html. The 3D editor features will be unavailable.';
+        errorDivCheck.style.color = 'red';
+        errorDivCheck.style.fontWeight = 'bold';
+        errorDivCheck.style.padding = '15px';
+        errorDivCheck.style.textAlign = 'center';
+        errorDivCheck.style.backgroundColor = '#fff0f0';
+        errorDivCheck.style.border = '2px solid red';
+        errorDivCheck.style.margin = '10px';
+        rootElCheck.parentNode.insertBefore(errorDivCheck, rootElCheck);
+      }
+      return;
+    }
+
+    try {
+      console.log("Attempting to initialize Pacdora SDK v1.1.8...");
+      await Pacdora.init({
+        appId: '164d2901e5f18047', // User's Pacdora App ID from prompt
+        isDelay: true, 
+        theme: '#3300FF', // Theme color for the editor from prompt
+      });
+      console.log("Pacdora SDK initialized successfully.");
+
+      // Conditionally call Pacdora.createScene only if a template ID is provided.
+      if (pacdoraTemplateIdForInitialLoad) {
+        console.log("Attempting to call Pacdora.createScene with templateId:", pacdoraTemplateIdForInitialLoad);
+        await Pacdora.createScene({
+          templateId: pacdoraTemplateIdForInitialLoad,
+          isShowLoading: true, 
+          showSize: true, 
+          showSide: true, 
+          doneBtn: "Save", 
+          isCreatePreview: true,
+          // Note: If the Pacdora editor needs to be rendered in a specific div,
+          // you would typically add a 'container' property here, e.g.:
+          // container: document.getElementById('my-pacdora-editor-div'),
+          // and ensure that div exists in the HTML.
+        });
+        console.log("Pacdora.createScene called successfully on DOMContentLoaded.");
+      } else {
+        console.warn("Pacdora.createScene was NOT called on DOMContentLoaded because 'pacdoraTemplateIdForInitialLoad' was not set. The Pacdora editor will not load a scene automatically. To load a scene from the React app (e.g., after user input), you can call 'window.Pacdora.createScene(...)' with a valid template ID.");
+      }
+
+    } catch (pacdoraError) {
+      console.error("Error during Pacdora SDK initialization or scene creation:", pacdoraError);
+      var rootElError = document.getElementById('root');
+      if (rootElError && rootElError.parentNode) {
+        var errorDivCatch = document.createElement('div');
+        // Display the actual error message if available
+        let errorMessageText = 'Error initializing Pacdora 3D editor. Please check the console for specific details. Features relying on the editor may not work.';
+        if (pacdoraError && (pacdoraError.message || typeof pacdoraError === 'string')) {
+            errorMessageText = `Pacdora Error: ${pacdoraError.message || pacdoraError}. Check console for details.`;
+        }
+        errorDivCatch.textContent = errorMessageText;
+        errorDivCatch.style.color = 'darkred';
+        errorDivCatch.style.padding = '10px';
+        errorDivCatch.style.textAlign = 'center';
+        errorDivCatch.style.backgroundColor = '#ffeeee';
+        errorDivCatch.style.border = '1px solid darkred';
+        errorDivCatch.style.margin = '10px';
+        rootElError.parentNode.insertBefore(errorDivCatch, rootElError);
+      }
+    }
+  });
+</script>
+
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- This is where the React application will be mounted. -->
+  <div id="root"></div>
+
+  <!--
+    IMPORTANT FOR GITHUB PAGES + ESM.SH HOSTING:
+    The 'src' attribute below points to your index.tsx file hosted on GitHub.
+    This requires your GitHub repository to be PUBLIC.
+    The format is: https://esm.sh/gh/YOUR_GITHUB_USERNAME/YOUR_REPOSITORY_NAME/main/YOUR_ENTRY_FILE.tsx
+    'main' is typically the default branch. If yours is different (e.g., 'master'), adjust accordingly.
+  -->
+  <script type="module" src="https://esm.sh/gh/Vossie1996/bpsquoting/main/index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

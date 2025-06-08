@@ -1,0 +1,5 @@
+{
+  "name": "Pacdora Quick Quote Calculator",
+  "description": "An application to calculate flat box dimensions and area based on Pacdora product links and box dimensions. It provides a quick estimate for sales teams, inspired by BioPack Solutions' aesthetics.",
+  "requestFramePermissions": []
+}
